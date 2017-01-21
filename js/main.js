@@ -24,7 +24,7 @@ $(document).ready(function(){
             for(var i = 0; i < value.departures.length; i++){
               departures += "Bussi: "     + parseBuss(value.departures[i].code) + "<br>";
               departures += "Aika: "      + parseTime(value.departures[i].time) + "<br>";
-              departures += "Päivmärrä: " + parseMonth(value.departures[i].date) + "<br><br>";
+              departures += "Päivmärrä: " + parseMonth(value.departures[i].date) + " (aikataulun)<br><br>";
             }
             response.append(
               "<span>Pysäkin numero: " + value.code    + "</span><br>" +
@@ -38,31 +38,49 @@ $(document).ready(function(){
 
     // Parse data
     function parseMonth(str) {
-      str = str.toString();
-        if(!/^(\d){8}$/.test(str)) return "Päivämäärä ei saatavilla";
-        var y = str.substr(0,4),
-            m = str.substr(4,2) - 1,
-            d = str.substr(6,2);
-        var date =  new Date(y,m,d);
-        return date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+      var string = str.toString();
+      if(!/^(\d){8}$/.test(string)) return "Päivämäärä ei saatavilla";
+      var y = string.substr(0,4),
+          m = string.substr(4,2) - 1,
+          d = string.substr(6,2);
+      var date =  new Date(y,m,d);
+      return date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
     }
 
     // Parse time
     function parseTime(str) {
-      str = str.toString();
-      if(str.length <= 3) str = "0" + str;
-      if(!/^(\d){4}$/.test(str)) return "Aikaa ei saatavilla";
-      var hh = str.slice(0, -2);
-      var mm = str.slice(-2);
+      var string = str.toString();
+      if(string.length <= 3) string = "0" + string;
+      if(!/^(\d){4}$/.test(string)) return "Aikaa ei saatavilla";
+
+      string = checkFormat(string);
+
+      var hh = string.slice(0, -2);
+      var mm = string.slice(-2);
       var timeString = hh + ":" + mm;
       return timeString;
     }
 
     // Parse Buss
     function parseBuss(str){
-      str = str.slice(1);
-      str = str.slice(0, -1);
-      return str;
+      var string = str.slice(1);
+      string = string.slice(0, -1);
+      return string;
+    }
+
+    // Correct time format (26:28 should be 02:28)
+    function checkFormat(str) {
+
+      var hh = str.slice(0, -2);
+      var mm = str.slice(-2);
+
+      if(parseInt(hh) >= 24) {
+        hh = hh - 24;
+        hh = "0" + hh;
+      }
+
+      var stringToReturn = hh + mm;
+      return stringToReturn;
     }
 
 });
